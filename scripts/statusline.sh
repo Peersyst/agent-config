@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 set -euo pipefail
 # One-line statusline: [Model] progress_bar context% | $cost | duration | cache%
 

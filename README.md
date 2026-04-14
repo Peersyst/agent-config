@@ -25,7 +25,7 @@ Blocks Claude from reading or modifying sensitive files:
 | Category | What's blocked |
 |----------|---------------|
 | Destructive commands | `rm -rf`, `sudo`, `mkfs`, `dd`, pipe-to-shell (`curl/wget \| bash`) |
-| Force operations | `git push --force`, `git reset --hard` |
+| Force operations | `git push --force`, `git push -f`, `git push --force-with-lease`, `git reset --hard` |
 | Shell config | Edits to `~/.bashrc`, `~/.zshrc`, `~/.profile`, `~/.bash_profile`, `~/.ssh/` |
 | Credentials | Reads from `~/.ssh/`, `~/.gnupg/`, `~/.aws/`, `~/.azure/`, `~/.kube/`, `~/.docker/config.json`, `~/.git-credentials`, `~/.config/gh/` |
 | Package manager tokens | `~/.npmrc`, `~/.npm/`, `~/.pypirc`, `~/.gem/credentials` |
@@ -39,11 +39,10 @@ Blocks Claude from reading or modifying sensitive files:
 
 ### Statusline (`.claude/statusline.sh`)
 
-A two-line status bar at the bottom of your terminal:
+A single-line status bar at the bottom of your terminal:
 
 ```
-[Opus 4.6] 📁 my-project │ 🌿 feat/new-api
-████████⣿⣿⣿⣿ 67% │ $1.42 │ ⏳ 23m │ 🔄 85%
+🤖 [4.6 Opus] ████████⣿⣿⣿⣿ 67% | 💰 $1.42 | ⏳ 23m 15s | 🔄 85%
 ```
 
 - **Context usage** — color-coded progress bar (green/yellow/red)

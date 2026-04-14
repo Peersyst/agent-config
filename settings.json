@@ -29,6 +29,9 @@
       "Bash(git push * --force *)",
       "Bash(git push * --force-with-lease)",
       "Bash(git push * --force-with-lease *)",
+      "Bash(git push -f *)",
+      "Bash(git push * -f)",
+      "Bash(git push * -f *)",
       "Bash(git reset --hard*)",
 
       "Edit(~/.bashrc)",
@@ -71,7 +74,7 @@
           },
           {
             "type": "command",
-            "command": "CMD=$(jq -r '.tool_input.command'); if echo \"$CMD\" | grep -qE 'git[[:space:]]+add[[:space:]]+(-A|\\.|\\*|[^[:space:]]*\\.env([[:space:]]|$))'; then echo 'BLOCKED: Do not stage .env files — they may contain secrets. Stage files individually.' >&2; exit 2; fi"
+            "command": "CMD=$(jq -r '.tool_input.command'); if echo \"$CMD\" | grep -qE 'git[[:space:]]+add[[:space:]]+(-A([[:space:]]|$)|\\.([[:space:]]|$)|\\*([[:space:]]|$)|[^[:space:]]*\\.env([[:space:]]|$))'; then echo 'BLOCKED: Do not stage .env files — they may contain secrets. Stage files individually.' >&2; exit 2; fi"
           }
         ]
       }
@@ -82,7 +85,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "jq -r '.tool_response.filePath // .tool_input.file_path // .file_path' | { read -r f; npx prettier --write --ignore-unknown \"$f\"; } 2>/dev/null || true",
+            "command": "jq -r '.tool_response.filePath // .tool_input.file_path // .file_path // empty' | { read -r f; [ -n \"$f\" ] && [ -f \"$f\" ] && npx prettier --write --ignore-unknown \"$f\" 2>&1 || true; }",
             "timeout": 30,
             "statusMessage": "Formatting with Prettier..."
           }

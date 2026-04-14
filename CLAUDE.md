@@ -5,7 +5,7 @@ npm package (`@peersyst/agent-config`) that installs opinionated Claude Code def
 ## Structure
 
 - `settings.json` — Claude Code settings template (permissions, hooks, statusline config)
-- `scripts/statusline.sh` — two-line terminal status bar, requires `jq`
+- `scripts/statusline.sh` — single-line terminal status bar, requires `jq`
 - `bin/install.js` — interactive installer that merges settings into `~/.claude/`
 - `package.json` — npm package with bin entry for `npx @peersyst/agent-config`
 

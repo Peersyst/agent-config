@@ -27,7 +27,7 @@ IFS=$'\t' read -r model_name cost duration_ms ctx_used cache_pct < <(
             else 0 end
         ) catch 0)
     ] | @tsv'
-)
+) || true
 
 # Fallback if jq failed
 if [ -z "$model_name" ]; then

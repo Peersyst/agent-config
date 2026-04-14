@@ -1,0 +1,24 @@
+{
+  "name": "@peersyst/agent-config",
+  "version": "0.1.0",
+  "description": "Opinionated Claude Code defaults for Peersyst engineers",
+  "bin": {
+    "agent-config": "./bin/install.js"
+  },
+  "files": [
+    "bin/",
+    "settings.json",
+    "scripts/"
+  ],
+  "keywords": [
+    "claude-code",
+    "peersyst",
+    "ai",
+    "config"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/peersyst/agent-config"
+  }
+}

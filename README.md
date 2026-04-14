@@ -50,7 +50,7 @@ A single-line status bar at the bottom of your terminal:
 - **Duration** — how long the session has been running
 - **Cache rate** — percentage of tokens served from prompt cache
 
-Requires `jq`.
+Requires `jq`. Optional: `curl` (for API usage display).
 
 ## Publishing
 

@@ -8,6 +8,40 @@ const PKG_ROOT = path.join(__dirname, "..");
 const SRC_SETTINGS = path.join(PKG_ROOT, "settings.json");
 const SRC_STATUSLINE = path.join(PKG_ROOT, "scripts", "statusline.sh");
 
+function printHelp() {
+  console.log(`
+  Usage: npx @peersyst/agent-config [options]
+
+  Options:
+    --statusline        Include the statusline script
+    --no-statusline     Skip statusline installation (default)
+    --help              Show this help message
+`);
+  process.exit(0);
+}
+
+function parseArgs(argv) {
+  const args = { statusline: false };
+  for (const arg of argv.slice(2)) {
+    switch (arg) {
+      case "--help":
+      case "-h":
+        printHelp();
+        break;
+      case "--statusline":
+        args.statusline = true;
+        break;
+      case "--no-statusline":
+        args.statusline = false;
+        break;
+      default:
+        console.error(`  Unknown option: ${arg}\n`);
+        printHelp();
+    }
+  }
+  return args;
+}
+
 function ask(question) {
   const rl = readline.createInterface({
     input: process.stdin,
@@ -97,7 +131,13 @@ async function main() {
 
   const claudeDir = path.join(projectRoot, ".claude");
 
-  const answer = await ask("  Install settings.json + statusline? [Y/n] ");
+  const flags = parseArgs(process.argv);
+
+  const prompt = flags.statusline
+    ? "  Install settings.json + statusline? [Y/n] "
+    : "  Install settings.json? [Y/n] ";
+
+  const answer = await ask(prompt);
 
   if (answer === "n" || answer === "no") {
     console.log("\n  Aborted.\n");
@@ -109,7 +149,9 @@ async function main() {
   }
 
   installSettings(claudeDir);
-  installStatusline(claudeDir);
+  if (flags.statusline) {
+    installStatusline(claudeDir);
+  }
 
   console.log("\n  All done. Restart Claude Code to pick up changes.\n");
 }

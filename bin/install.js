@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 const fs = require("fs");
+const os = require("os");
 const path = require("path");
 const readline = require("readline");
 
@@ -8,7 +9,7 @@ const PKG_ROOT = path.join(__dirname, "..");
 const SRC_SETTINGS = path.join(PKG_ROOT, "settings.json");
 const SRC_STATUSLINE = path.join(PKG_ROOT, "scripts", "statusline.sh");
 
-function printHelp() {
+function printHelp(exitCode = 0) {
   console.log(`
   Usage: npx @peersyst/agent-config [options]
 
@@ -16,8 +17,11 @@ function printHelp() {
     --statusline        Include the statusline script
     --no-statusline     Skip statusline installation (default)
     --help              Show this help message
+
+  You will always be prompted for the install location
+  (project .claude/ or global ~/.claude/).
 `);
-  process.exit(0);
+  process.exit(exitCode);
 }
 
 function parseArgs(argv) {
@@ -36,23 +40,35 @@ function parseArgs(argv) {
         break;
       default:
         console.error(`  Unknown option: ${arg}\n`);
-        printHelp();
+        printHelp(1);
     }
   }
   return args;
 }
 
+let _rl;
+const _lineQueue = [];
+const _lineWaiters = [];
+function _initRl() {
+  if (_rl) return;
+  _rl = readline.createInterface({ input: process.stdin });
+  _rl.on("line", (line) => {
+    if (_lineWaiters.length) _lineWaiters.shift()(line);
+    else _lineQueue.push(line);
+  });
+}
 function ask(question) {
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-  });
+  _initRl();
+  process.stdout.write(question);
   return new Promise((resolve) => {
-    rl.question(question, (answer) => {
-      rl.close();
-      resolve(answer.trim().toLowerCase());
-    });
+    const handle = (line) => resolve(line.trim().toLowerCase());
+    if (_lineQueue.length) handle(_lineQueue.shift());
+    else _lineWaiters.push(handle);
   });
+}
+
+function closeRl() {
+  if (_rl) _rl.close();
 }
 
 function findProjectRoot(from) {
@@ -120,6 +136,15 @@ function installStatusline(claudeDir) {
   fs.writeFileSync(statuslinePath, content);
   fs.chmodSync(statuslinePath, 0o755);
   console.log("  Installed .claude/statusline.sh");
+
+  const settingsPath = path.join(claudeDir, "settings.json");
+  const settings = JSON.parse(fs.readFileSync(settingsPath, "utf8"));
+  settings.statusLine = {
+    type: "command",
+    command: ".claude/statusline.sh",
+  };
+  fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2) + "\n");
+  console.log("  Enabled statusLine hook in .claude/settings.json");
 }
 
 async function main() {
@@ -128,16 +153,26 @@ async function main() {
   const projectRoot = findProjectRoot(process.cwd());
 
   console.log("\n  @peersyst/agent-config\n");
-  console.log("  Installs Claude Code defaults to project .claude/");
-  console.log("  Project: " + projectRoot + "\n");
+  console.log("  Installs Claude Code defaults\n");
 
-  const claudeDir = path.join(projectRoot, ".claude");
+  const choice = await ask(
+    "  Install location: [P]roject (.claude/) or [G]lobal (~/.claude/)? [P/g] ",
+  );
+  const scope = choice === "g" || choice === "global" ? "global" : "project";
+
+  const claudeDir =
+    scope === "global"
+      ? path.join(os.homedir(), ".claude")
+      : path.join(projectRoot, ".claude");
+
+  console.log("  Target: " + claudeDir + "\n");
 
   const prompt = flags.statusline
     ? "  Install settings.json + statusline? [Y/n] "
     : "  Install settings.json? [Y/n] ";
 
   const answer = await ask(prompt);
+  closeRl();
 
   if (answer === "n" || answer === "no") {
     console.log("\n  Aborted.\n");

@@ -1,6 +1,6 @@
 {
   "name": "@peersyst/agent-config",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Opinionated Claude Code defaults for Peersyst engineers",
   "bin": {
     "agent-config": "./bin/install.js"

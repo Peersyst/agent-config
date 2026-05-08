@@ -123,6 +123,8 @@ function installStatusline(claudeDir) {
 }
 
 async function main() {
+  const flags = parseArgs(process.argv);
+
   const projectRoot = findProjectRoot(process.cwd());
 
   console.log("\n  @peersyst/agent-config\n");
@@ -130,8 +132,6 @@ async function main() {
   console.log("  Project: " + projectRoot + "\n");
 
   const claudeDir = path.join(projectRoot, ".claude");
-
-  const flags = parseArgs(process.argv);
 
   const prompt = flags.statusline
     ? "  Install settings.json + statusline? [Y/n] "
